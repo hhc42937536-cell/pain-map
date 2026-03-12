@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人生痛點地圖</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF5C1A;
+    --orange-bg: #FFF4EE;
+    --orange-pill: #FFE5D5;
+    --orange-bor: #FFD4BC;
+    --blue-bg: #F0F3FF;
+    --blue-pill: #E0E6FF;
+    --blue-bor: #D0D8FF;
+    --blue-acc: #4A6CF7;
+    --green-bg: #F0FFF4;
+    --green-bor: #B2DFDB;
+    --green-acc: #2E7D32;
+    --dark: #1A2238;
+    --muted: #888888;
+    --border: #E8E8E8;
+    --bg-light: #F8F8F8;
+    --white: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--white);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  .page {
+    display: none;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px 48px;
+    min-height: 100vh;
+  }
+  .page.active { display: block; }
+
+  @media (max-width: 600px) {
+    .page { padding: 20px 20px; }
+  }
+
+  /* ── Utilities ── */
+  .pill {
+    display: inline-flex; align-items: center;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; line-height: 1.4;
+  }
+  .pill-orange { background: var(--orange-pill); color: var(--orange); }
+  .pill-blue   { background: var(--blue-pill);   color: var(--blue-acc); }
+  .pill-light  { background: var(--white); color: var(--muted); border: 1.5px solid var(--border); }
+
+  .card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    padding: 16px 18px;
+  }
+  .card-orange { background: var(--orange-bg); border-color: var(--orange-bor); }
+  .card-blue   { background: var(--blue-bg);   border-color: var(--blue-bor); }
+  .card-green  { background: var(--green-bg);  border-color: var(--green-bor); }
+
+  .btn {
+    width: 100%; padding: 16px;
+    border: none; border-radius: 14px;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: opacity .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-orange { background: var(--orange); color: var(--white); }
+  .btn-blue   { background: var(--blue-acc); color: var(--white); }
+  .btn:hover  { opacity: .9; }
+
+  .back-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 22px; color: var(--dark); padding: 4px 8px 4px 0;
+    line-height: 1; flex-shrink: 0;
+  }
+
+  .page-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+  }
+  .page-header h2 { font-size: 18px; font-weight: 900; }
+
+  input[type=text], textarea {
+    width: 100%; font-family: inherit; font-size: 14px; color: var(--dark);
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 14px 16px;
+    outline: none; transition: border-color .2s; resize: none;
+  }
+  input[type=text]:focus, textarea:focus { border-color: var(--orange); }
+  input[type=text]::placeholder, textarea::placeholder { color: #BBBBBB; }
+
+  /* ── HOME ── */
+  .hero { text-align: center; margin: 10px 0 6px; }
+  .hero-line { display: flex; justify-content: center; flex-wrap: wrap; gap: 0; }
+  .hero-line span { font-size: clamp(32px, 6vw, 46px); font-weight: 900; }
+  .orange-text { color: var(--orange); }
+
+  .mode-cards {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;
+  }
+  @media (max-width: 500px) { .mode-cards { grid-template-columns: 1fr; } }
+
+  .mode-card {
+    background: var(--orange-bg); border: 1.5px solid var(--orange-bor);
+    border-radius: 24px; padding: 22px; cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .mode-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px #0001; }
+  .mode-card.blue-mode { background: var(--blue-bg); border-color: var(--blue-bor); }
+  .mode-card .mode-icon { font-size: 40px; margin: 8px 0; }
+  .mode-card h3 { font-size: 22px; font-weight: 900; margin: 4px 0; }
+  .mode-card p  { font-size: 13px; color: var(--muted); margin: 4px 0 10px; line-height: 1.5; }
+  .mode-card .cta { font-size: 14px; font-weight: 700; color: var(--orange); }
+  .mode-card.blue-mode .cta { color: var(--blue-acc); }
+  .mode-card .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+
+  .board-entry {
+    border: 1.5px solid var(--border); border-radius: 24px;
+    padding: 20px 32px; text-align: center; cursor: pointer;
+    transition: transform .15s;
+  }
+  .board-entry:hover { transform: translateY(-2px); }
+
+  /* ── FLOW (category grid) ── */
+  .cat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  @media (max-width: 400px) { .cat-grid { grid-template-columns: repeat(2,1fr); } }
+
+  .cat-card {
+    background: var(--bg-light); border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 16px 8px; text-align: center;
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .cat-card:hover { border-color: var(--orange); background: var(--orange-bg); }
+  .cat-card .cat-ic { font-size: 28px; }
+  .cat-card .cat-nm { font-size: 11px; font-weight: 700; margin-top: 6px; }
+
+  /* ── SUB (sub-category grid) ── */
+  .sub-card {
+    background: var(--bg-light); border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 18px 8px; text-align: center;
+    cursor: pointer; transition: border-color .15s, background .15s, transform .12s;
+  }
+  .sub-card:hover { border-color: var(--orange); background: var(--orange-bg); transform: translateY(-2px); }
+  .sub-card.other { background: var(--orange-bg); border-color: var(--orange-bor); }
+  .sub-card .sub-ic { font-size: 32px; }
+  .sub-card .sub-nm { font-size: 12px; font-weight: 700; margin-top: 8px; line-height: 1.3; }
+  .sub-card .sub-hint { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  /* ── FORM ── */
+  .hint-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--blue-bg); border: 1px solid var(--blue-bor);
+    border-radius: 10px; padding: 10px 14px; font-size: 12px; color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* ── SOLUTION: select pain ── */
+  .hot-list { display: flex; flex-direction: column; gap: 10px; }
+  .hot-item {
+    display: flex; align-items: center; gap: 10px;
+    border: 1.5px solid var(--border); border-radius: 16px;
+    padding: 14px 16px; transition: border-color .15s, background .15s;
+  }
+  .hot-item.selected { background: var(--blue-bg); border-color: var(--blue-acc); }
+  .hot-item .rank { width: 38px; text-align: center; font-size: 16px; font-weight: 900; flex-shrink: 0; }
+  .hot-item .content { flex: 1; }
+  .hot-item .tags-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+  .hot-item .goal-text { font-size: 13px; color: var(--dark); }
+  .hot-item .pick-btn {
+    background: var(--blue-bg); border: 1.5px solid var(--blue-acc);
+    color: var(--blue-acc); border-radius: 10px; padding: 8px 14px;
+    font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    transition: background .15s, color .15s; font-family: inherit; flex-shrink: 0;
+  }
+  .hot-item.selected .pick-btn { background: var(--blue-acc); color: var(--white); }
+
+  /* ── SOLUTION FILL ── */
+  .field-block { margin-bottom: 14px; }
+  .field-label { font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+  .required { color: var(--orange); }
+
+  .sol-fill-card {
+    background: var(--white); border: 1.5px solid var(--blue-bor);
+    border-radius: 18px; padding: 24px;
+  }
+  .sol-fill-card h4 { font-size: 14px; font-weight: 900; margin-bottom: 16px; }
+
+  /* ── BOARD ── */
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stat-card {
+    border-radius: 12px; padding: 12px 0; text-align: center;
+  }
+  .stat-card .stat-num { font-size: 20px; font-weight: 900; }
+  .stat-card .stat-lbl { font-size: 11px; color: var(--muted); }
+
+  .search-wrap { position: relative; margin-bottom: 14px; }
+  .search-wrap .search-ic {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    font-size: 16px; pointer-events: none;
+  }
+  .search-wrap input { padding-left: 44px; border-radius: 16px; height: 52px; }
+  .search-wrap input:focus { border-color: var(--orange); }
+
+  .board-list { display: flex; flex-direction: column; gap: 12px; }
+  .board-item {
+    background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 18px; padding: 16px 18px;
+    transition: border-color .15s;
+  }
+  .board-item.top3 {
+    border-color: var(--orange-bor);
+    box-shadow: 0 2px 8px #0000000d;
+  }
+  .board-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .board-rank { font-size: 14px; font-weight: 900; flex-shrink: 0; }
+  .board-tags { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+  .board-goal { font-size: 14px; color: var(--dark); line-height: 1.6; padding-left: 4px; }
+
+  .like-btn {
+    display: flex; flex-direction: column; align-items: center;
+    border-radius: 14px; padding: 12px 14px; cursor: pointer;
+    border: 1.5px solid var(--orange-bor); background: #FFFAF7;
+    min-width: 72px; transition: background .15s, border-color .15s;
+    flex-shrink: 0; font-family: inherit;
+  }
+  .like-btn.voted { border-color: var(--orange); background: var(--orange-bg); }
+  .like-btn .like-ic { font-size: 20px; line-height: 1; }
+  .like-btn .like-num { font-size: 13px; font-weight: 700; color: var(--muted); }
+  .like-btn.voted .like-num { color: var(--orange); }
+  .like-btn .like-lbl { font-size: 10px; color: var(--orange); }
+
+  /* ── Snackbar ── */
+  .snackbar {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+    background: var(--dark); color: var(--white); border-radius: 12px;
+    padding: 12px 20px; font-size: 14px; font-weight: 500;
+    z-index: 999; transition: transform .3s, opacity .3s; opacity: 0;
+    white-space: nowrap;
+  }
+  .snackbar.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* spacing helpers */
+  .mt4  { margin-top: 4px; }
+  .mt6  { margin-top: 6px; }
+  .mt8  { margin-top: 8px; }
+  .mt10 { margin-top: 10px; }
+  .mt12 { margin-top: 12px; }
+  .mt14 { margin-top: 14px; }
+  .mt16 { margin-top: 16px; }
+  .mt20 { margin-top: 20px; }
+  .mb40 { margin-bottom: 40px; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ HOME ════════════════════════ -->
+<div id="page-home" class="page active">
+  <div style="display:flex;justify-content:center">
+    <span class="pill" style="background:var(--orange-bg);border:1.5px solid var(--orange-bor);color:var(--orange)">
+      🏮 人生痛點地圖：找出你的僵局
+    </span>
+  </div>
+
+  <div class="hero mt10">
+    <div class="hero-line"><span>你的</span><span class="orange-text">痛點</span><span>，</span></div>
+    <div class="hero-line"><span>藏在哪裡？</span></div>
+  </div>
+
+  <div class="mt6" style="text-align:center;color:var(--muted);font-size:15px;line-height:1.7">
+    兩個工具，對應兩種需求。<br>寫下你的困境，或分享你的解法。
+  </div>
+
+  <div class="mt12 card card-blue" style="padding:14px 18px">
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <span style="font-size:16px">💡</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--dark)">什麼是「痛點」？</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">
+          不是抱怨，是生活中希望被工具解決的小問題。<br>
+          例：每天對帳耗掉兩小時、工作焦慮到睡不著…
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-cards mt20">
+    <div class="mode-card" onclick="showPage('page-flow')">
+      <span class="pill pill-orange">寫入模式</span>
+      <div class="mode-icon">😣</div>
+      <h3>我有痛點</h3>
+      <p>透過診斷引導，將你的煩惱轉化為結構化痛點，讓 AI 幫你找到突破口</p>
+      <div class="tags">
+        <span class="pill pill-light">15 大分類</span>
+        <span class="pill pill-light">子分類引導</span>
+        <span class="pill pill-light">上架看板</span>
+      </div>
+      <div class="cta">開始診斷 →</div>
+    </div>
+
+    <div class="mode-card blue-mode" onclick="showPage('page-solution')">
+      <span class="pill pill-blue">解法模式</span>
+      <div class="mode-icon">🛠️</div>
+      <h3>我有解法</h3>
+      <p>選一個熱門痛點，分享你的工具或方法，幫助有同樣困境的人</p>
+      <div class="tags">
+        <span class="pill pill-light">熱門痛點</span>
+        <span class="pill pill-light">填寫工具</span>
+        <span class="pill pill-light">分享解法</span>
+      </div>
+      <div class="cta" style="color:var(--blue-acc)">分享解法 →</div>
+    </div>
+  </div>
+
+  <div class="board-entry" onclick="showPage('page-board'); renderBoard('')">
+    <div style="font-size:44px">🏮</div>
+    <div style="font-size:18px;font-weight:900;margin:4px 0">轉運看板</div>
+    <div style="font-size:13px;color:var(--muted)">大家的痛點都在這裡，你不孤單</div>
+    <div class="mt4">
+      <span class="pill" style="background:var(--orange-bg);border:1px solid var(--orange-bor);color:var(--orange);font-size:12px">
+        🔥 看到有共鳴就點火焰
+      </span>
+    </div>
+  </div>
+  <div class="mb40"></div>
+</div>
+
+<!-- ════════════════════════ FLOW ════════════════════════ -->
+<div id="page-flow" class="page">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPage('page-home')">←</button>
+  </div>
+  <div class="mt6">
+    <span class="pill pill-orange">😣 我有痛點</span>
+  </div>
+  <h2 style="font-size:26px;font-weight:900;margin-top:6px">你的痛點屬於哪個領域？</h2>
+  <div style="font-size:14px;color:var(--muted);margin-top:4px">選擇大類，下一步再選精確子分類</div>
+
+  <div class="cat-grid mt16" id="cat-grid"></div>
+  <div class="mb40"></div>
+</div>
+
+<!-- ════════════════════════ SUB ════════════════════════ -->
+<div id="page-sub" class="page">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPage('page-flow')">←</button>
+  </div>
+
+  <!-- 大分類 banner -->
+  <div id="sub-banner" style="border-radius:20px;padding:20px 22px;margin-top:8px;background:var(--orange-bg);border:1.5px solid var(--orange-bor)">
+    <div style="font-size:44px;line-height:1" id="sub-banner-ic"></div>
+    <div style="font-size:22px;font-weight:900;margin-top:8px;color:var(--dark)" id="sub-banner-name"></div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px">選擇更精確的子分類，讓你的痛點被更多人看見</div>
+  </div>
+
+  <!-- 子分類 grid -->
+  <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px" id="sub-grid"></div>
+
+  <!-- 導流卡 -->
+  <div style="margin-top:20px;border-radius:20px;overflow:hidden;border:1.5px solid var(--blue-bor);cursor:pointer"
+       onclick="window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288','_blank')">
+    <div style="background:linear-gradient(135deg,#4A6CF7 0%,#7B5EE6 100%);padding:20px 22px;color:#fff">
+      <div style="font-size:11px;font-weight:700;opacity:.8;letter-spacing:.05em;margin-bottom:6px">✨ 探索更多</div>
+      <div style="font-size:18px;font-weight:900;line-height:1.3">痛點背後藏著<br>改變世界的商機</div>
+      <div style="font-size:12px;opacity:.8;margin-top:8px;line-height:1.5">你的每一個困境，都可能是下一個<br>百億市場的起點 →</div>
+    </div>
+    <div style="background:var(--blue-bg);padding:14px 22px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:13px;font-weight:700;color:var(--blue-acc)">🚀 前往「智慧商機」探索</span>
+      <span style="margin-left:auto;font-size:18px">→</span>
+    </div>
+  </div>
+
+  <div class="mb40"></div>
+</div>
+
+<!-- ════════════════════════ FORM ════════════════════════ -->
+<div id="page-form" class="page">
+  <div class="page-header">
+    <button class="back-btn" id="form-back-btn">←</button>
+    <h2>說出你的痛點</h2>
+  </div>
+  <div id="breadcrumb" style="font-size:13px;font-weight:700;color:var(--orange);margin-top:4px"></div>
+
+  <div class="hint-box mt12">
+    <span style="font-size:14px">💡</span>
+    <span>痛點 = 生活中希望被工具解決的小問題，不是抱怨</span>
+  </div>
+
+  <textarea id="pain-input" rows="6" placeholder="例：每天花兩小時手動對帳，創業的熱情快被瑣事耗光了..." style="margin-top:8px"></textarea>
+
+  <button class="btn btn-orange mt14" onclick="submitPain()">🔥 發布痛點，讓大家共鳴</button>
+  <div class="mb40"></div>
+</div>
+
+<!-- ════════════════════════ SOLUTION ════════════════════════ -->
+<div id="page-solution" class="page">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPage('page-home')">←</button>
+    <h2>我有解法</h2>
+  </div>
+
+  <div class="card card-blue mt8" style="padding:16px 18px">
+    <div style="display:flex;gap:14px;align-items:center">
+      <span style="font-size:26px">🛠️</span>
+      <div>
+        <div style="font-size:14px;font-weight:900">你有工具能解決別人的困境嗎？</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">選熱門痛點來解答，或直接分享你的工具</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row mt16" id="sol-stats"></div>
+
+  <!-- Tab switcher -->
+  <div id="sol-tabs" style="display:flex;gap:0;border:1.5px solid var(--blue-bor);border-radius:14px;overflow:hidden;margin-bottom:16px">
+    <button id="tab-hot"
+      onclick="window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/solution-gallery','_blank')"
+      style="flex:1;padding:10px;font-family:inherit;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--blue-acc);color:#fff;transition:background .2s">
+      🔥 解決熱門痛點
+    </button>
+    <button id="tab-own"
+      onclick="window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/tool-library','_blank')"
+      style="flex:1;padding:10px;font-family:inherit;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--white);color:var(--blue-acc);transition:background .2s">
+      ✨ 分享我的工具
+    </button>
+  </div>
+
+  <!-- Panel: 選熱門痛點 -->
+  <div id="panel-hot">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:15px;font-weight:900">🔥 熱門痛點排行</span>
+      <span style="font-size:12px;color:var(--muted)">選一個你能解決的</span>
+    </div>
+    <div class="hot-list" id="hot-list"></div>
+    <button class="btn btn-blue mt20" onclick="goFill()">選好了 →</button>
+  </div>
+
+  <!-- Panel: 分享我的工具 (自由填寫) -->
+  <div id="panel-own" style="display:none">
+    <div class="card card-blue" style="padding:14px 18px;margin-bottom:16px">
+      <div style="font-size:13px;color:var(--dark)">💡 不一定要對應別人的痛點，直接介紹你覺得好用的工具給大家！</div>
+    </div>
+    <div class="sol-fill-card">
+      <h4>🛠️ 工具資訊</h4>
+      <div class="field-block">
+        <div class="field-label">工具名稱 <span class="required">*</span></div>
+        <input type="text" id="own-tool-input" placeholder="例：Notion、Obsidian、ChatGPT、自製 Excel 模板...">
+      </div>
+      <div class="field-block">
+        <div class="field-label">工具連結（選填）</div>
+        <input type="text" id="own-link-input" placeholder="https://（選填）">
+      </div>
+      <div class="field-block">
+        <div class="field-label">它解決了你什麼問題？ <span class="required">*</span></div>
+        <textarea id="own-desc-input" rows="4" placeholder="例：用 Notion 管理客戶資料後，再也不用翻 Line 記錄找對話…"></textarea>
+      </div>
+      <div class="field-block">
+        <div class="field-label">適合哪種類型的人？（選填）</div>
+        <input type="text" id="own-target-input" placeholder="例：自由接案者、創業初期、需要管理大量文件的人...">
+      </div>
+      <button class="btn btn-blue" onclick="submitOwnTool()">🚀 送出工具，幫助更多人</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;border-top:1.5px solid var(--border);padding-top:20px;margin-top:32px">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">「如同海浪起伏，人生也需要適時的停歇與呼吸。」</p>
+    <button class="pill pill-light" onclick="showPage('page-home')" style="cursor:pointer;padding:8px 20px;font-family:inherit;font-size:13px">
+      🍵 回到解憂雜貨店休息一下
+    </button>
+  </div>
+  <div class="mb40"></div>
+</div>
+
+<!-- ════════════════════════ SOLUTION FILL ════════════════════════ -->
+<div id="page-sol-fill" class="page">
+  <div class="page-header">
+    <button class="back-btn" onclick="window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/solution-gallery','_blank')">←</button>
+    <h2>填寫你的解法</h2>
+  </div>
+
+  <div id="target-card" class="card card-blue mt12" style="padding:16px 18px"></div>
+
+  <div class="sol-fill-card mt20">
+    <h4>🛠️ 解法資訊</h4>
+
+    <div class="field-block">
+      <div class="field-label">工具 / 方法名稱 <span class="required">*</span></div>
+      <input type="text" id="tool-input" placeholder="例：Notion、ChatGPT、自製 Excel 模板、Line 群組...">
+    </div>
+
+    <div class="field-block">
+      <div class="field-label">工具連結（選填）</div>
+      <input type="text" id="link-input" placeholder="https://（選填）">
+    </div>
+
+    <div class="field-block">
+      <div class="field-label">如何解決這個痛點？ <span class="required">*</span></div>
+      <textarea id="desc-input" rows="5" placeholder="說明這個工具怎麼解決這個問題，越具體越有說服力..."></textarea>
+    </div>
+
+    <button class="btn btn-blue" onclick="submitSolution()">🚀 送出解法，幫助更多人</button>
+  </div>
+  <div class="mb40"></div>
+</div>
+
+<!-- ════════════════════════ BOARD ════════════════════════ -->
+<div id="page-board" class="page">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPage('page-home')">←</button>
+    <h2>轉運看板</h2>
+  </div>
+  <div style="font-size:13px;color:var(--muted);margin-top:2px">這裡記錄著大家說不出口的人生僵局</div>
+
+  <div class="card card-orange mt14" style="padding:16px 18px">
+    <div style="display:flex;gap:14px;align-items:center">
+      <span style="font-size:22px">🔥</span>
+      <div>
+        <div style="font-size:13px;font-weight:900">看到有共鳴的痛點？點火焰支持他！</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">火焰越多 = 越多人有同樣的困境，你不孤單。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row mt12" id="board-stats"></div>
+
+  <div class="search-wrap">
+    <span class="search-ic">🔍</span>
+    <input type="text" id="board-search" placeholder="搜尋人生僵局..." oninput="renderBoard(this.value)" style="border-radius:16px;height:52px">
+  </div>
+
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+    <span style="font-size:14px;font-weight:900">🏆 共鳴排行</span>
+    <span style="font-size:11px;color:var(--muted)">按火焰數由高到低</span>
+  </div>
+
+  <div class="board-list" id="board-list"></div>
+
+  <div style="text-align:center;border-top:1.5px solid var(--border);padding-top:20px;margin-top:32px">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">「如同海浪起伏，人生也需要適時的停歇與呼吸。」</p>
+    <button class="pill pill-light" onclick="showPage('page-home')" style="cursor:pointer;padding:8px 20px;font-family:inherit;font-size:13px">
+      🍵 回到解憂雜貨店休息一下
+    </button>
+  </div>
+  <div class="mb40"></div>
+</div>
+
+<!-- Snackbar -->
+<div class="snackbar" id="snackbar"></div>
+
+<script>
+// ─── Data ───────────────────────────────────────────
+const CAT_TREE = [
+  {ic:"🌱",n:"人生階段",subs:[
+    ["🎒","國中"],["🏫","高中"],["🎓","大學"],["👔","社會新鮮人"],
+    ["💪","工作1~3年"],["📈","工作3~6年"],["🏆","工作6~10年"],
+    ["🔄","30歲轉折"],["🧗","40歲職涯瓶頸"],["😰","50歲職涯焦慮"]]},
+  {ic:"💼",n:"工作與職涯",subs:[
+    ["🔍","找工作"],["🔀","轉職"],["💰","薪水談判"],["🤝","職場人際"],
+    ["😓","工作壓力"],["🧭","職涯方向"],["🚀","創業"],["⚡","副業"],
+    ["🏠","遠距工作"],["📦","被裁員"]]},
+  {ic:"💰",n:"金錢與投資",subs:[
+    ["🐷","存錢"],["📊","投資入門"],["📉","股票"],["🗂️","ETF"],
+    ["🏠","房地產"],["💳","債務"],["💳","信用卡"],["🛡️","保險"],
+    ["🧾","稅務"],["📋","財務規劃"]]},
+  {ic:"🏃",n:"健康與身體",subs:[
+    ["⚖️","減肥"],["🏋️","健身"],["😴","睡眠"],["🦴","腰痠背痛"],
+    ["👁️","眼睛疲勞"],["🥗","飲食控制"],["💊","保健食品"],
+    ["🌿","中醫調理"],["🤒","壓力型疾病"]]},
+  {ic:"❤️",n:"情感與關係",subs:[
+    ["👋","交友"],["💕","戀愛"],["💔","失戀"],["💍","婚姻"],
+    ["😤","婆媳"],["😢","出軌"],["🗣️","感情溝通"],["🚪","分手"],
+    ["⏰","單身焦慮"]]},
+  {ic:"🏠",n:"家庭與育兒",subs:[
+    ["🤰","懷孕"],["👶","新生兒"],["👨‍👩‍👧","教養"],["📚","教育"],
+    ["🏫","學校問題"],["😤","青少年叛逆"],["🏡","家庭關係"]]},
+  {ic:"⚡",n:"生活效率",subs:[
+    ["⏰","時間管理"],["💻","工作效率"],["🗂️","整理收納"],
+    ["🌅","早起"],["🔁","習慣養成"],["🧠","學習方法"]]},
+  {ic:"🛒",n:"消費與產品",subs:[
+    ["📱","手機"],["💻","電腦"],["🏠","家電"],["🧴","保養品"],
+    ["🏃","運動用品"],["🚗","汽車"],["🐾","寵物用品"]]},
+  {ic:"🤖",n:"AI與數位工具",subs:[
+    ["🤖","AI工作工具"],["✍️","AI寫作"],["🎨","AI設計"],
+    ["⚙️","自動化"],["📊","數據分析"],["🌐","網站製作"]]},
+  {ic:"🎨",n:"興趣與娛樂",subs:[
+    ["🏃","運動"],["✈️","旅遊"],["📷","攝影"],
+    ["🎮","遊戲"],["🧶","手作"],["🎵","音樂"]]},
+  {ic:"✨",n:"外貌與形象",subs:[
+    ["🧔","男性保養"],["💄","女性保養"],["💄","化妝"],
+    ["👗","穿搭"],["💇","髮型"],["💉","醫美"]]},
+  {ic:"🧘",n:"心理與壓力",subs:[
+    ["😰","焦慮"],["😔","憂鬱"],["🌫️","迷茫"],
+    ["🌱","自我成長"],["🧭","人生方向"]]},
+  {ic:"🏢",n:"居住與房屋",subs:[
+    ["🔑","租屋"],["🏠","買房"],["🔨","裝潢"],
+    ["🛋️","家具"],["😠","鄰居問題"]]},
+  {ic:"🚗",n:"交通與移動",subs:[
+    ["🚇","通勤"],["🚗","買車"],["🅿️","停車"],
+    ["🛵","機車"],["🚨","交通事故"]]},
+  {ic:"🤝",n:"人際與社交",subs:[
+    ["👋","交朋友"],["😶","社交恐懼"],
+    ["📱","社群經營"],["🖼️","網路形象"]]},
+];
+
+let entries = [
+  {id:1,  sub:"工作與職涯",subsub:"創業",   ic:"💼",goal:"每天人工對帳到天亮，創業的快樂快被疲倦淹沒了。",       likes:215},
+  {id:2,  sub:"心理與壓力",subsub:"焦慮",   ic:"🧘",goal:"靈感枯竭時總覺得焦慮，忘了休息才是文思泉湧的關鍵。",   likes:168},
+  {id:3,  sub:"AI與數位工具",subsub:"自動化",ic:"🤖",goal:"AI 衝擊太大，不知道該如何整合進自動化流程。",           likes:132},
+  {id:4,  sub:"情感與關係",subsub:"感情溝通",ic:"❤️",goal:"另一半不理解創業的辛苦，溝通一直處於死結狀態。",       likes:95},
+];
+let voted = new Set();
+let selCatIdx = -1;
+let selSub    = "";
+let solSelId  = null;
+let solSelGoal = "";
+
+// ─── Navigation ─────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ─── Snackbar ────────────────────────────────────────
+function toast(msg, bg='#1A2238') {
+  const sb = document.getElementById('snackbar');
+  sb.textContent = msg;
+  sb.style.background = bg;
+  sb.classList.add('show');
+  setTimeout(() => sb.classList.remove('show'), 2500);
+}
+
+// ─── FLOW: category grid ─────────────────────────────
+function buildCatGrid() {
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '';
+  CAT_TREE.forEach((cat, idx) => {
+    const d = document.createElement('div');
+    d.className = 'cat-card';
+    d.innerHTML = `<div class="cat-ic">${cat.ic}</div><div class="cat-nm">${cat.n}</div>`;
+    d.onclick = () => { openSub(idx); };
+    grid.appendChild(d);
+  });
+}
+
+// ─── SUB: sub-category grid ──────────────────────────
+function openSub(catIdx) {
+  selCatIdx = catIdx;
+  const cat = CAT_TREE[catIdx];
+  document.getElementById('sub-banner-ic').textContent   = cat.ic;
+  document.getElementById('sub-banner-name').textContent = cat.n;
+  document.getElementById('form-back-btn').onclick = () => showPage('page-sub');
+
+  const grid = document.getElementById('sub-grid');
+  grid.innerHTML = '';
+  cat.subs.forEach(([ic, name]) => {
+    const d = document.createElement('div');
+    d.className = 'sub-card';
+    d.innerHTML = `<div class="sub-ic">${ic}</div><div class="sub-nm">${name}</div>`;
+    d.onclick = () => window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/pain-point-hub', '_blank');
+    grid.appendChild(d);
+  });
+  // 其它
+  const other = document.createElement('div');
+  other.className = 'sub-card other';
+  other.innerHTML = `<div class="sub-ic">✏️</div><div class="sub-nm" style="color:var(--orange)">其它</div><div class="sub-hint">自行描述</div>`;
+  other.onclick = () => window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/pain-point-hub', '_blank');
+  grid.appendChild(other);
+
+  showPage('page-sub');
+}
+
+// ─── FORM ────────────────────────────────────────────
+function openForm(subName) {
+  selSub = subName;
+  const cat = CAT_TREE[selCatIdx];
+  document.getElementById('breadcrumb').textContent = `${cat.ic} ${cat.n}  ›  ${subName}`;
+  document.getElementById('pain-input').value = '';
+  showPage('page-form');
+}
+
+function submitPain() {
+  const text = (document.getElementById('pain-input').value || '').trim();
+  if (!text) { toast('請先填寫你的痛點！', '#FF5C1A'); return; }
+  const cat = CAT_TREE[selCatIdx];
+  entries.unshift({
+    id: Date.now(),
+    sub: cat.n, subsub: selSub,
+    ic: cat.ic, goal: text, likes: 0,
+  });
+  document.getElementById('pain-input').value = '';
+  toast('✅ 痛點已發布！正在前往探索商機...', '#FF5C1A');
+  setTimeout(() => {
+    window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/pain-point-hub', '_blank');
+    showPage('page-home');
+  }, 1200);
+}
+
+// ─── SOLUTION: select pain ──────────────────────────
+function renderSolution() {
+  // stats
+  const total = entries.reduce((s, e) => s + e.likes, 0);
+  document.getElementById('sol-stats').innerHTML = `
+    <div class="stat-card card-orange">
+      <div class="stat-num" style="color:var(--orange)">${entries.length}</div>
+      <div class="stat-lbl">個痛點</div>
+    </div>
+    <div class="stat-card card-blue">
+      <div class="stat-num" style="color:var(--blue-acc)">${total}</div>
+      <div class="stat-lbl">次共鳴</div>
+    </div>`;
+
+  const hot = [...entries].sort((a,b) => b.likes - a.likes).slice(0, 8);
+  const rankIc = ['🥇','🥈','🥉'];
+  const rankColors = ['#FFD700','#C0C0C0','#CD7F32'];
+  const list = document.getElementById('hot-list');
+  list.innerHTML = '';
+  hot.forEach((e, i) => {
+    const isSel = solSelId === e.id;
+    const d = document.createElement('div');
+    d.className = 'hot-item' + (isSel ? ' selected' : '');
+    d.innerHTML = `
+      <div class="rank" style="color:${i<3?rankColors[i]:'#CCCCCC'}">${i<3?rankIc[i]:'#'+(i+1)}</div>
+      <div class="content">
+        <div class="tags-row">
+          <span class="pill" style="background:${isSel?'var(--blue-pill)':'var(--orange-bg)'};color:${isSel?'var(--blue-acc)':'var(--orange)'}">
+            ${e.ic} ${e.sub}
+          </span>
+          ${e.subsub ? `<span class="pill" style="background:var(--bg-light);color:var(--muted)">${e.subsub}</span>` : ''}
+          <span style="font-size:11px;font-weight:700;color:var(--orange)">🔥 ${e.likes}</span>
+        </div>
+        <div class="goal-text">「${e.goal}」</div>
+      </div>
+      <button class="pick-btn" onclick="pickPain(${e.id}, \`${e.goal.replace(/`/g,"'")}\`)">
+        ${isSel ? '✓ 已選' : '選這個'}
+      </button>`;
+    list.appendChild(d);
+  });
+}
+
+function pickPain(eid, goal) {
+  solSelId   = eid;
+  solSelGoal = goal;
+  renderSolution();
+}
+
+function goFill() {
+  if (!solSelId) { toast('請先選擇一個你想解決的痛點！', '#4A6CF7'); return; }
+  window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/solution-gallery', '_blank');
+}
+
+function switchSolTab(tab) {
+  const isHot = tab === 'hot';
+  document.getElementById('panel-hot').style.display = isHot ? 'block' : 'none';
+  document.getElementById('panel-own').style.display = isHot ? 'none' : 'block';
+  document.getElementById('tab-hot').style.background = isHot ? 'var(--blue-acc)' : 'var(--white)';
+  document.getElementById('tab-hot').style.color      = isHot ? '#fff' : 'var(--blue-acc)';
+  document.getElementById('tab-own').style.background = isHot ? 'var(--white)' : 'var(--blue-acc)';
+  document.getElementById('tab-own').style.color      = isHot ? 'var(--blue-acc)' : '#fff';
+}
+
+function submitOwnTool() {
+  if (!(document.getElementById('own-tool-input').value || '').trim()) {
+    toast('請填寫工具名稱！', '#4A6CF7'); return;
+  }
+  if (!(document.getElementById('own-desc-input').value || '').trim()) {
+    toast('請說明它解決了什麼問題！', '#4A6CF7'); return;
+  }
+  toast('🚀 工具已送出，感謝你的貢獻！', '#2E7D32');
+  document.getElementById('own-tool-input').value  = '';
+  document.getElementById('own-link-input').value  = '';
+  document.getElementById('own-desc-input').value  = '';
+  document.getElementById('own-target-input').value = '';
+  showPage('page-home');
+}
+
+
+function submitSolution() {
+  if (!(document.getElementById('tool-input').value || '').trim()) {
+    toast('請填寫工具名稱！', '#4A6CF7'); return;
+  }
+  toast('🚀 解法已送出，感謝你的貢獻！', '#2E7D32');
+  setTimeout(() => {
+    window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/solution-gallery', '_blank');
+    showPage('page-home');
+  }, 1200);
+}
+
+// ─── BOARD ───────────────────────────────────────────
+function renderBoard(query) {
+  query = (query || '').trim();
+  const filtered = entries
+    .filter(e => !query || e.goal.includes(query) || e.sub.includes(query) || (e.subsub||'').includes(query))
+    .sort((a, b) => b.likes - a.likes);
+
+  // stats
+  const total = entries.reduce((s, e) => s + e.likes, 0);
+  document.getElementById('board-stats').innerHTML = `
+    <div class="stat-card card-orange">
+      <div class="stat-num" style="color:var(--orange)">${entries.length}</div>
+      <div class="stat-lbl">個痛點</div>
+    </div>
+    <div class="stat-card card-blue">
+      <div class="stat-num" style="color:var(--blue-acc)">${total}</div>
+      <div class="stat-lbl">次共鳴</div>
+    </div>`;
+
+  const list = document.getElementById('board-list');
+  list.innerHTML = '';
+
+  if (!filtered.length) {
+    list.innerHTML = `
+      <div style="text-align:center;padding:50px 0">
+        <div style="font-size:40px">🔍</div>
+        <div style="font-size:15px;font-weight:700;margin-top:8px">找不到相關痛點</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">成為第一個發布的人吧！</div>
+      </div>`;
+    return;
+  }
+
+  const rankIc = ['🥇','🥈','🥉'];
+  filtered.forEach((e, i) => {
+    const isVoted = voted.has(e.id);
+    const rankColor = i < 3 ? 'var(--orange)' : '#CCCCCC';
+    const rankTxt   = i < 3 ? rankIc[i] : `#${i+1}`;
+
+    const item = document.createElement('div');
+    item.className = 'board-item' + (i < 3 ? ' top3' : '');
+    item.innerHTML = `
+      <div class="board-item-top">
+        <span class="board-rank" style="color:${rankColor};font-size:${i<3?14:12}px">${rankTxt}</span>
+        <div class="board-tags">
+          <span class="pill" style="background:var(--orange-bg);color:var(--orange);font-size:10px;font-weight:700">${e.ic} ${e.sub}</span>
+          ${e.subsub ? `<span class="pill" style="background:var(--bg-light);color:var(--muted);font-size:10px">${e.subsub}</span>` : ''}
+        </div>
+        <div style="flex:1"></div>
+        <button class="like-btn${isVoted?' voted':''}" onclick="toggleLike(${e.id})">
+          <span class="like-ic">${isVoted?'🔥':'🫂'}</span>
+          <span class="like-num">${e.likes}</span>
+          ${isVoted ? '' : '<span class="like-lbl">共鳴</span>'}
+        </button>
+      </div>
+      <div class="board-goal">「${e.goal}」</div>`;
+    list.appendChild(item);
+  });
+}
+
+function toggleLike(eid) {
+  const entry = entries.find(e => e.id === eid);
+  if (!entry) return;
+  if (voted.has(eid)) { voted.delete(eid); entry.likes--; }
+  else { voted.add(eid); entry.likes++; }
+  renderBoard(document.getElementById('board-search').value || '');
+}
+
+// ─── Init ────────────────────────────────────────────
+buildCatGrid();
+const _origShowPage = showPage;
+window.showPage = function(id) {
+  _origShowPage(id);
+  if (id === 'page-solution') renderSolution();
+};
+
+// ─── 智慧導流器 ──────────────────────────────────────
+function handleInboundTraffic() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const ref = urlParams.get('ref');
+  if (!ref) return;
+  switch (ref) {
+    case 'pain_hub':
+      showPage('page-board');
+      renderBoard('');
+      toast('歡迎來到轉運看板，看看大家的人生僵局。', '#FF5C1A');
+      break;
+    case 'sol_gallery':
+      showPage('page-solution');
+      renderSolution();
+      toast('正在為您尋找適合的工具與解法...', '#4A6CF7');
+      break;
+    case 'brand':
+      showPage('page-home');
+      break;
+  }
+}
+window.addEventListener('load', handleInboundTraffic);
+</script>
+</body>
+</html>
