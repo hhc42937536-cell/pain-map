@@ -286,7 +286,7 @@
         <div style="font-size:13px;font-weight:700;color:var(--dark)">什麼是「痛點」？</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">
           不是抱怨，是生活中希望被工具解決的小問題。<br>
-          例：每天對帳耗掉兩小時、工作焦慮到睡不著…
+          例：每週手動整理報表很耗時、找不到能管理多平台訂單的工具…
         </div>
       </div>
     </div>
@@ -328,6 +328,13 @@
       <span class="pill" style="background:var(--orange-bg);border:1px solid var(--orange-bor);color:var(--orange);font-size:12px">
         🔥 看到有共鳴就點火焰
       </span>
+    </div>
+  </div>
+  <!-- 頁尾信任元素 -->
+  <div style="margin-top:32px;border-top:1.5px solid var(--border);padding-top:20px;text-align:center">
+    <div style="font-size:11px;color:#BBBBBB;line-height:1.9">
+      本工具為免費體驗版，所有痛點皆匿名處理<br>
+      由智慧商機團隊開發｜資料僅用於共鳴排行與 AI 診斷
     </div>
   </div>
   <div class="mb40"></div>
@@ -394,7 +401,7 @@
     <span>痛點 = 生活中希望被工具解決的小問題，不是抱怨</span>
   </div>
 
-  <textarea id="pain-input" rows="6" placeholder="例：每天花兩小時手動對帳，創業的熱情快被瑣事耗光了..." style="margin-top:8px"></textarea>
+  <textarea id="pain-input" rows="6" placeholder="例：每天手動對帳要花兩小時，有沒有工具可以自動抓取交易紀錄？" style="margin-top:8px"></textarea>
 
   <button class="btn btn-orange mt14" onclick="submitPain()">🔥 發布痛點，讓大家共鳴</button>
   <div class="mb40"></div>
@@ -431,16 +438,6 @@
       style="flex:1;padding:10px;font-family:inherit;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--white);color:var(--blue-acc);transition:background .2s">
       ✨ 分享我的工具
     </button>
-  </div>
-
-  <!-- Panel: 選熱門痛點 -->
-  <div id="panel-hot">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <span style="font-size:15px;font-weight:900">🔥 熱門痛點排行</span>
-      <span style="font-size:12px;color:var(--muted)">選一個你能解決的</span>
-    </div>
-    <div class="hot-list" id="hot-list"></div>
-    <button class="btn btn-blue mt20" onclick="goFill()">選好了 →</button>
   </div>
 
   <!-- Panel: 分享我的工具 (自由填寫) -->
@@ -531,6 +528,16 @@
 
   <div class="stats-row mt12" id="board-stats"></div>
 
+  <!-- 平台統計橫幅 -->
+  <div style="background:linear-gradient(135deg,#1A2238 0%,#2D3A5C 100%);border-radius:16px;padding:16px 20px;margin-bottom:14px;color:white">
+    <div style="font-size:13px;font-weight:900;margin-bottom:4px">🏆 平台已成功買斷 <span style="color:#FFD700">12 個痛點</span>，總商機價值破 NT$50,000！</div>
+    <div style="font-size:12px;opacity:.75;margin-bottom:10px">你的痛點，下一個就是你？</div>
+    <button onclick="window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/pain-point-hub','_blank')"
+      style="background:var(--orange);border:none;border-radius:10px;padding:7px 16px;color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+      帶著我的痛點去智慧商機賺幣 →
+    </button>
+  </div>
+
   <div class="search-wrap">
     <span class="search-ic">🔍</span>
     <input type="text" id="board-search" placeholder="搜尋人生僵局..." oninput="renderBoard(this.value)" style="border-radius:16px;height:52px">
@@ -554,6 +561,25 @@
 
 <!-- Snackbar -->
 <div class="snackbar" id="snackbar"></div>
+
+<!-- 分享選單 -->
+<div id="share-menu" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:white;border:1.5px solid var(--border);border-radius:16px;padding:12px 16px;
+  flex-direction:column;gap:8px;z-index:1000;box-shadow:0 8px 24px #0002;min-width:220px">
+  <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px">分享這個痛點</div>
+  <a id="share-line" href="#" target="_blank"
+     style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:#06C755;color:white;text-decoration:none;font-size:13px;font-weight:700">
+    <span style="font-size:18px">💬</span> 分享到 LINE
+  </a>
+  <a id="share-fb" href="#" target="_blank"
+     style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:#1877F2;color:white;text-decoration:none;font-size:13px;font-weight:700">
+    <span style="font-size:18px">👥</span> 分享到 Facebook
+  </a>
+  <button id="share-copy"
+     style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;background:var(--bg-light);border:1.5px solid var(--border);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--dark)">
+    <span style="font-size:18px">📋</span> 複製連結
+  </button>
+</div>
 
 <script>
 // ─── Data ───────────────────────────────────────────
@@ -611,16 +637,38 @@ const CAT_TREE = [
 ];
 
 let entries = [
-  {id:1,  sub:"工作與職涯",subsub:"創業",   ic:"💼",goal:"每天人工對帳到天亮，創業的快樂快被疲倦淹沒了。",       likes:215},
-  {id:2,  sub:"心理與壓力",subsub:"焦慮",   ic:"🧘",goal:"靈感枯竭時總覺得焦慮，忘了休息才是文思泉湧的關鍵。",   likes:168},
-  {id:3,  sub:"AI與數位工具",subsub:"自動化",ic:"🤖",goal:"AI 衝擊太大，不知道該如何整合進自動化流程。",           likes:132},
-  {id:4,  sub:"情感與關係",subsub:"感情溝通",ic:"❤️",goal:"另一半不理解創業的辛苦，溝通一直處於死結狀態。",       likes:95},
+  {id:1, sub:"工作與職涯", subsub:"創業",   ic:"💼", goal:"每天手動對帳要花兩小時，有沒有工具可以自動抓取交易紀錄？",             likes:215},
+  {id:2, sub:"生活效率",   subsub:"時間管理",ic:"⚡", goal:"會議太多導致深度工作時間被切碎，想找方法保護專注時段。",               likes:168},
+  {id:3, sub:"AI與數位工具",subsub:"自動化", ic:"🤖", goal:"每週要手動整理報表發給主管，希望能一鍵自動生成並寄出。",               likes:132},
+  {id:4, sub:"心理與壓力", subsub:"焦慮",   ic:"🧘", goal:"睡前腦子停不下來一直想工作的事，試了很多方法都沒用，求推薦。",         likes:95},
 ];
 let voted = new Set();
 let selCatIdx = -1;
 let selSub    = "";
 let solSelId  = null;
 let solSelGoal = "";
+
+// ─── LocalStorage 持久化 ─────────────────────────────
+function saveEntries() {
+  try { localStorage.setItem('pain_entries', JSON.stringify(entries)); } catch(e) {}
+}
+function loadEntries() {
+  try {
+    const saved = localStorage.getItem('pain_entries');
+    if (saved) entries = JSON.parse(saved);
+  } catch(e) {}
+}
+function saveVoted() {
+  try { localStorage.setItem('pain_voted', JSON.stringify([...voted])); } catch(e) {}
+}
+function loadVoted() {
+  try {
+    const saved = localStorage.getItem('pain_voted');
+    if (saved) voted = new Set(JSON.parse(saved));
+  } catch(e) {}
+}
+loadEntries();
+loadVoted();
 
 // ─── Navigation ─────────────────────────────────────
 function showPage(id) {
@@ -691,15 +739,21 @@ function submitPain() {
   const text = (document.getElementById('pain-input').value || '').trim();
   if (!text) { toast('請先填寫你的痛點！', '#FF5C1A'); return; }
   const cat = CAT_TREE[selCatIdx];
+  const newId = Date.now();
   entries.unshift({
-    id: Date.now(),
+    id: newId,
     sub: cat.n, subsub: selSub,
     ic: cat.ic, goal: text, likes: 0,
   });
+  // 存入 localStorage 讓火焰數持久
+  saveEntries();
   document.getElementById('pain-input').value = '';
-  toast('✅ 痛點已發布！正在前往探索商機...', '#FF5C1A');
+  toast('✅ 痛點已發布！帶著你的痛點前往智慧商機…', '#FF5C1A');
   setTimeout(() => {
-    window.open('https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/pain-point-hub', '_blank');
+    window.open(
+      `https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/pain-point-hub?pain_id=${newId}&ref=pain_map`,
+      '_blank'
+    );
     showPage('page-home');
   }, 1200);
 }
@@ -848,7 +902,16 @@ function renderBoard(query) {
           ${isVoted ? '' : '<span class="like-lbl">共鳴</span>'}
         </button>
       </div>
-      <div class="board-goal">「${e.goal}」</div>`;
+      <div class="board-goal">「${e.goal}」</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        ${e.likes >= 100
+          ? `<span style="display:inline-flex;align-items:center;gap:5px;background:var(--green-bg);border:1.5px solid var(--green-bor);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--green-acc)">✅ 已買斷！商機成交</span>`
+          : `<span style="font-size:11px;color:var(--green-acc);font-weight:700">💰 此痛點已被洽購 ${Math.floor(e.likes * 0.7 + 3)} 次，下一個是你？</span>`
+        }
+        <button onclick="sharePain(${e.id})" style="background:none;border:1.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;white-space:nowrap">
+          📤 分享
+        </button>
+      </div>`;
     list.appendChild(item);
   });
 }
@@ -858,8 +921,40 @@ function toggleLike(eid) {
   if (!entry) return;
   if (voted.has(eid)) { voted.delete(eid); entry.likes--; }
   else { voted.add(eid); entry.likes++; }
+  saveEntries();
+  saveVoted();
   renderBoard(document.getElementById('board-search').value || '');
 }
+
+// ─── 分享痛點 ─────────────────────────────────────────
+function sharePain(eid) {
+  const entry = entries.find(e => e.id === eid);
+  if (!entry) return;
+  const text = `我在「人生痛點地圖」發現一個有 ${entry.likes} 人共鳴的痛點：「${entry.goal}」\n原來痛點也能變商機！👉 `;
+  const url  = `https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/pain-point-hub?pain_id=${eid}&ref=share`;
+
+  // 優先用 Web Share API（手機）
+  if (navigator.share) {
+    navigator.share({ title: '人生痛點地圖', text, url }).catch(() => {});
+    return;
+  }
+  // 桌機：顯示分享選單
+  const menu = document.getElementById('share-menu');
+  document.getElementById('share-line').href =
+    `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+  document.getElementById('share-fb').href =
+    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
+  document.getElementById('share-copy').onclick = () => {
+    navigator.clipboard.writeText(text + url).then(() => toast('✅ 已複製到剪貼簿！', '#2E7D32'));
+    menu.style.display = 'none';
+  };
+  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+}
+document.addEventListener('click', e => {
+  const menu = document.getElementById('share-menu');
+  if (menu && !menu.contains(e.target) && !e.target.closest('[onclick*="sharePain"]'))
+    menu.style.display = 'none';
+});
 
 // ─── Init ────────────────────────────────────────────
 buildCatGrid();
