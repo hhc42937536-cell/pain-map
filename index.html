@@ -271,12 +271,12 @@
   </div>
 
   <div class="hero mt10">
-    <div class="hero-line"><span>你的</span><span class="orange-text">痛點</span><span>，</span></div>
-    <div class="hero-line"><span>藏在哪裡？</span></div>
+    <div class="hero-line"><span>生活太累，</span></div>
+    <div class="hero-line"><span class="orange-text">工作卡關？</span></div>
   </div>
 
   <div class="mt6" style="text-align:center;color:var(--muted);font-size:15px;line-height:1.7">
-    兩個工具，對應兩種需求。<br>寫下你的困境，或分享你的解法。
+    在這裡，你的煩惱能變商機，<br>你的工具能變智慧。
   </div>
 
   <div class="mt12 card card-blue" style="padding:14px 18px">
@@ -293,28 +293,28 @@
   </div>
 
   <div class="mode-cards mt20">
-    <div class="mode-card" onclick="showPage('page-flow')">
-      <span class="pill pill-orange">寫入模式</span>
+    <div class="mode-card" onclick="toast('正在將你的煩惱送往智慧商機…像海浪一樣，休息後會更好。', '#FF5C1A'); setTimeout(() => showPage('page-flow'), 900)">
+      <span class="pill pill-orange">幫煩惱找出口</span>
       <div class="mode-icon">😣</div>
-      <h3>我有痛點</h3>
-      <p>透過診斷引導，將你的煩惱轉化為結構化痛點，讓 AI 幫你找到突破口</p>
+      <h3>幫煩惱找出口</h3>
+      <p>生活中那些「好煩、好累、好慢」的瞬間，寫下來。我們幫你轉化成結構化需求，讓 AI 與專家幫你找解法。</p>
       <div class="tags">
-        <span class="pill pill-light">15 大分類</span>
-        <span class="pill pill-light">子分類引導</span>
-        <span class="pill pill-light">上架看板</span>
+        <span class="pill pill-light">#拒絕內耗</span>
+        <span class="pill pill-light">#轉化商機</span>
+        <span class="pill pill-light">#解憂雜貨店</span>
       </div>
       <div class="cta">開始診斷 →</div>
     </div>
 
-    <div class="mode-card blue-mode" onclick="showPage('page-solution')">
-      <span class="pill pill-blue">解法模式</span>
+    <div class="mode-card blue-mode" onclick="toast('正在連結你的智慧與需要幫助的人…', '#4A6CF7'); setTimeout(() => showPage('page-solution'), 900)">
+      <span class="pill pill-blue">分享 AI 工具箱</span>
       <div class="mode-icon">🛠️</div>
-      <h3>我有解法</h3>
-      <p>選一個熱門痛點，分享你的工具或方法，幫助有同樣困境的人</p>
+      <h3>分享 AI 工具箱</h3>
+      <p>你手上有強大的 AI 工具或私藏軟體嗎？分享給正受苦的人，讓你的智慧被看見，還能換取智慧幣。</p>
       <div class="tags">
-        <span class="pill pill-light">熱門痛點</span>
-        <span class="pill pill-light">填寫工具</span>
-        <span class="pill pill-light">分享解法</span>
+        <span class="pill pill-light">#AI神器</span>
+        <span class="pill pill-light">#效率工具</span>
+        <span class="pill pill-light">#智慧交換</span>
       </div>
       <div class="cta" style="color:var(--blue-acc)">分享解法 →</div>
     </div>
@@ -322,8 +322,8 @@
 
   <div class="board-entry" onclick="showPage('page-board'); renderBoard('')">
     <div style="font-size:44px">🏮</div>
-    <div style="font-size:18px;font-weight:900;margin:4px 0">轉運看板</div>
-    <div style="font-size:13px;color:var(--muted)">大家的痛點都在這裡，你不孤單</div>
+    <div style="font-size:18px;font-weight:900;margin:4px 0">看看大家怎麼過坎</div>
+    <div style="font-size:13px;color:var(--muted)">已累積 1,200+ 條人生僵局。看看別人的痛點，說不定這就是你下一個 AI 工具的商機。</div>
     <div class="mt4">
       <span class="pill" style="background:var(--orange-bg);border:1px solid var(--orange-bor);color:var(--orange);font-size:12px">
         🔥 看到有共鳴就點火焰
@@ -748,7 +748,7 @@ function submitPain() {
   // 存入 localStorage 讓火焰數持久
   saveEntries();
   document.getElementById('pain-input').value = '';
-  toast('✅ 痛點已發布！帶著你的痛點前往智慧商機…', '#FF5C1A');
+  toast('正在將你的煩惱送往智慧商機…像海浪一樣，休息後會更好。', '#FF5C1A');
   setTimeout(() => {
     window.open(
       `https://readdy.cc/preview/134fea51-6794-4d42-8061-a3a4e3936717/7248288/pain-point-hub?pain_id=${newId}&ref=pain_map`,
